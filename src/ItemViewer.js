@@ -62,7 +62,7 @@ const mgeo = new THREE.SphereGeometry(1,1);
 const pointLight = new THREE.PointLight(0xFFFFFF);
     pointLight.position.set(0,0,0);
     const ambientLight = new THREE.AmbientLight(0xFFFFFF);
-    ambientLight.intensity = 3;
+    ambientLight.intensity = 5;
     scene.add( ambientLight)
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
@@ -83,8 +83,6 @@ function onMouseMove(event){
 }
   
 }
-const stats = Stats()
-document.body.appendChild(stats.dom)
 
 function animate() {
     requestAnimationFrame(animate)
@@ -93,7 +91,6 @@ function animate() {
 
     render()
 
-    stats.update()
 }
 
 function render() {

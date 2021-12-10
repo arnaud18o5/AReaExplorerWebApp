@@ -4,6 +4,7 @@ import React, { useEffect,useState} from "react";
 import ItemsList from './ItemsList';
 import ItemViewer from "./ItemViewer";
 import PoisList from './PoisList';
+import ItemDetail from './ItemDetail';
 
 function Workspace(props){
     var cookies;
@@ -191,6 +192,53 @@ function Workspace(props){
             console.log(newPos.x, newPos.y, newPos.z)
     }
 
+
+    const editItem = (id, data, detail) => {
+        let url = "https://lauriari-arvr.azurewebsites.net/aritem/update/" + id + "?param=" + detail;
+        var myInit;
+        if(detail === "category"){
+            myInit = { method: 'PATCH',
+               headers: { 'Content-Type': 'application/json' , 'Authorization':'Bearer ' + props.cookies.token},
+               body: JSON.stringify({ category: data})
+            }
+        }
+        else if(detail === "description"){
+            myInit = { method: 'PATCH',
+               headers: { 'Content-Type': 'application/json' , 'Authorization':'Bearer ' + props.cookies.token},
+               body: JSON.stringify({ description: data})
+            }
+        }
+        else if(detail === "name"){
+            myInit = { method: 'PATCH',
+               headers: { 'Content-Type': 'application/json' , 'Authorization':'Bearer ' + props.cookies.token},
+               body: JSON.stringify({ name: data})
+            }
+        }
+        else if(detail === "longitude"){
+            myInit = { method: 'PATCH',
+               headers: { 'Content-Type': 'application/json' , 'Authorization':'Bearer ' + props.cookies.token},
+               body: JSON.stringify({ longitude: data})
+            }
+        }
+        else if(detail === "latitude"){
+            myInit = { method: 'PATCH',
+               headers: { 'Content-Type': 'application/json' , 'Authorization':'Bearer ' + props.cookies.token},
+               body: JSON.stringify({ latitude: data})
+            }
+        }
+        fetch("https://lauriari-arvr.azurewebsites.net/aritem/update/" + id + "?param=" + detail,myInit).then((response) => 
+                response.json())
+                .then((data) => {
+                    if(data.message === "Updated " + detail){
+                        console.log("changement bien effectue")
+                        return data;
+                    }
+                    else{
+                        return 0;
+                    }
+                })
+    }
+
     function addPois(id){
         var formdata = new FormData();
         formdata.append("avatar", nPois.avatar);
@@ -215,6 +263,7 @@ function Workspace(props){
         .then(result => {
             if(result.message === "Added a new point of interest!"){
                 setPois(false);
+                refreshItemsList();
             }
             else{
                 console.log("add a toaster : error pois")
@@ -252,10 +301,10 @@ function Workspace(props){
                         </div>
                         <div className="d-flex justify-content-around" style={{padding:"5%"}}>
                             <div>
-                                <h5>Description :</h5>
-                                <p>{item.description}</p>
-                                <p><strong>Location: </strong>{item.latitude} ; {item.longitude}</p>
-                                <p><strong>Category: </strong>{item.category}</p>
+                                <ItemDetail editItem={editItem} data={item.description} id={item._id} detail={"description"}></ItemDetail>
+                                <ItemDetail editItem={editItem} data={item.latitude} id={item._id} detail={"latitude"}></ItemDetail>
+                                <ItemDetail editItem={editItem} data={item.longitude} id={item._id} detail={"longitude"}></ItemDetail>
+                                <ItemDetail editItem={editItem} data={item.category} id={item._id} detail={"category"}></ItemDetail>
                                 <p>QR Code for your items</p>
                                 <div class="d-flex flex-column align-items-center">
                                     <img src={item.QRCode} alt="" />
@@ -266,10 +315,11 @@ function Workspace(props){
                         </div>
                         <div className="d-flex justify-content-start">
                             <button class="btn btn-primary" style={{margin: "0 1% 0 0"}}onClick={() => setPois(true)}>Add a point of interest to your item</button>
-                            <button class="btn btn-secondary" onClick={() => console.log("edit")}>Edit the item</button>
+                            <button class="btn btn-secondary" onClick={() => console.log("click")}>Edit the item</button>
                         </div>
                     </div>
                     <PoisList pois={item.pois}></PoisList>
+                    
                 </div>       
             )
             
