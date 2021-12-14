@@ -4,6 +4,7 @@ import React, { useEffect,useState} from "react";
 import ItemsList from './ItemsList';
 import ItemViewer from "./ItemViewer";
 import PoisList from './PoisList';
+import ItemDetail from './ItemDetail';
 
 function Workspace(props){
     var cookies;
@@ -16,6 +17,7 @@ function Workspace(props){
     const [typeItem, setTypeItem] = useState('noChoice');
     const [pois, setPois] = useState(false);
     const [newPos, setNPos] = useState({x: "0", y:"0", z:"0"});
+    const [facteur, setFacteur] = useState(0.4);
 
     
     useEffect(() => {
@@ -179,6 +181,21 @@ function Workspace(props){
         setState('newItem');
     }
 
+    function editItem(id, newData, detail){
+
+        var requestOptions;
+        requestOptions = {
+            method:'PATCH',
+            headers: {'Content-Type': 'application/json', 'Authorization':'Bearer ' + props.cookies.token},
+            body: JSON.stringify({[detail]: newData})
+        }
+        
+        fetch("https://lauriari-arvr.azurewebsites.net/aritem/update/" + id + "?param=" + detail,
+        requestOptions).then((response) => 
+        response.json()
+        )
+    }
+
     function itemOnClick(x, y, z){
             nPois.x = x.toString();
             nPois.y=  y.toString();
@@ -188,7 +205,15 @@ function Workspace(props){
                 y: (y + 2).toString(),
                 z: z.toString()
             })
-            console.log(newPos.x, newPos.y, newPos.z)
+    }
+
+    function changeFac(){
+        if(facteur === 0.3){
+            setFacteur(1);
+        }
+        else{
+            setFacteur(0.3);
+        }
     }
 
     function addPois(id){
@@ -250,19 +275,21 @@ function Workspace(props){
                                 <img src={"https://lauriaristorage.blob.core.windows.net/" + item.logoImageReference} style={{width: "5%", margin: "0 2% 0 0"}}alt="" />
                                 <h2>{item.name}</h2>
                         </div>
-                        <div className="d-flex justify-content-around" style={{padding:"5%"}}>
+                        <div className="d-flex flex-column align-items-center justify-content-around" style={{padding:"5%"}}>
                             <div>
-                                <h5>Description :</h5>
-                                <p>{item.description}</p>
-                                <p><strong>Location: </strong>{item.latitude} ; {item.longitude}</p>
-                                <p><strong>Category: </strong>{item.category}</p>
+                            <ItemDetail detail="description" id={item._id}data={item.description} editItem={editItem}></ItemDetail>
+                            <ItemDetail detail="latitude" id={item._id}data={item.latitude} editItem={editItem}></ItemDetail>
+                            <ItemDetail detail="longitude" id={item._id}data={item.longitude} editItem={editItem}></ItemDetail>
+                            <ItemDetail detail="category" id={item._id}data={item.category} editItem={editItem}></ItemDetail>
                                 <p>QR Code for your items</p>
                                 <div class="d-flex flex-column align-items-center">
                                     <img src={item.QRCode} alt="" />
                                     <a href={item.QRCode} download={item.name}><button class="btn btn-secondary btn-sm">Download me</button></a>
                                 </div>
                             </div>
-                            <ItemViewer link={item.objectReference} click={itemOnClick}></ItemViewer>
+                            <div class=" d-flex flex-column bd-highlight mb-3 align-items-center">
+                                <ItemViewer link={item.objectReference}  fac={facteur }click={itemOnClick}></ItemViewer>
+                            </div>
                         </div>
                         <div className="d-flex justify-content-start">
                             <button class="btn btn-primary" style={{margin: "0 1% 0 0"}}onClick={() => setPois(true)}>Add a point of interest to your item</button>
@@ -283,7 +310,7 @@ function Workspace(props){
                         <img src={"https://lauriaristorage.blob.core.windows.net/" + item.logoImageReference} style={{width: "5%", margin: "0 2% 0 0"}}alt="" />
                         <h2>{item.name}</h2>
                 </div>
-                <div className="d-flex justify-content-around" style={{padding:"0 0 5% 0"}}>
+                <div className="d-flex flex-column align-items-center justify-content-around" style={{padding:"0 0 5% 0"}}>
                     <div>
                         <h5>Description :</h5>
                         <p>{item.description}</p>
@@ -295,12 +322,12 @@ function Workspace(props){
                             <a href={item.QRCode} download={item.name}><button class="btn btn-secondary btn-sm">Download me</button></a>
                         </div>
                     </div>
-                    <ItemViewer link={item.objectReference} click={itemOnClick}  ></ItemViewer>
+                    <ItemViewer link={item.objectReference} click={itemOnClick} fac={facteur} ></ItemViewer>
                 </div>
                 
                     <div class="mb-3">
                         <label for="formFile" class="form-label">Choose a logo for the point of interest.</label>
-                        <input class="form-control" id="file-input" onChange={(e) => nPois.avatar = e.target.files[0]} placeholder="Choose a file" type="file" onChange={(e) => nItem.file = e.target.files[0]}></input>
+                        <input class="form-control" id="file-input" onChange={(e) => nPois.avatar = e.target.files[0]} placeholder="Choose a file" type="file" ></input>
                     </div>
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Name</span>

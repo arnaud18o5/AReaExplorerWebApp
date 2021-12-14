@@ -15,8 +15,10 @@ import { useEffect, useRef, useState } from "react";
 export default function ItemViewer(props){
     const mountRef = useRef(null);
     const [pos, setPos] = useState(false);
+    const [fac, setFac] = useState(props.fac);
 
     useEffect(() => {
+      setFac(props.fac)
     let pointclouds;
 const scene = new THREE.Scene()
 scene.background = new THREE.Color( 0xffffff );
@@ -34,7 +36,7 @@ const camera = new THREE.PerspectiveCamera(
 )
 camera.position.z = 20
 const renderer = new THREE.WebGLRenderer()
-renderer.setSize(window.innerWidth *0.3, window.innerHeight * 0.3)
+renderer.setSize(window.innerWidth *fac, window.innerHeight * fac)
 mountRef.current.appendChild( renderer.domElement );
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
@@ -60,15 +62,16 @@ const mgeo = new THREE.SphereGeometry(1,1);
   const moon = new THREE.Mesh(mgeo,mmat);
   moon.name = "intersection";
 const pointLight = new THREE.PointLight(0xFFFFFF);
-    pointLight.position.set(0,0,0);
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF);
-    ambientLight.intensity = 3;
-    scene.add( ambientLight)
+    pointLight.position.set(30,30,30);
+    pointLight.intensity = 5;
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    ambientLight.intensity = 1;
+    scene.add(pointLight, ambientLight)
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
     camera.aspect = window.innerWidth  / (window.innerHeight)
     camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth *0.3, window.innerHeight*0.3)
+    renderer.setSize(window.innerWidth *fac, window.innerHeight*fac)
     render()
 }
 window.addEventListener('pointermove', onMouseMove);
@@ -108,18 +111,12 @@ function render() {
     // You can do anything you want here, this is just an example to make the hovered object transparent
     //console.log(intersects[i].object.parent.name); 
     const newMaterial = intersects[i].object.material.clone();
-    newMaterial.transparent = false;
-    newMaterial.opacity = 0.5;
     intersects[i].object.material = newMaterial;
     if(i === 2){
       x = intersects[2].point.x;
       y = intersects[2].point.y;
       z = intersects[2].point.z;
     }
-     
-
-   
-    
   }
 
   window.addEventListener("click", onClick, false);
@@ -145,7 +142,7 @@ window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setSize(window.innerWidth * fac, window.innerHeight * fac)
     render()
 }
 
@@ -155,11 +152,21 @@ animate()
 //return () => mountRef.current.removeChild( renderer.domElement);
     }, [])
     
-    
+    function changeFac(){
+      if(fac === 0.3){
+          setFac(1);
+      }
+      else{
+          setFac(0.3);
+      }
+  }
 
     return (
+      <>
         <div ref={mountRef} style={{cursor: "none"}}id="3d">
         </div>
+        <button onClick={changeFac} class="btn btn-secondary">{fac === 1 ? "Leave Fullscreen" : "FullScreen"}</button>
+      </>
     )
   
 }
