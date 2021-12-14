@@ -18,7 +18,7 @@ function Workspace(props){
     const [pois, setPois] = useState(false);
     const [newPos, setNPos] = useState({x: "0", y:"0", z:"0"});
     const [facteur, setFacteur] = useState(0.4);
-
+    const [oldData, setOldData] = useState(data);
     
     useEffect(() => {
         cookies = props.cookies;
@@ -36,7 +36,9 @@ function Workspace(props){
             method: 'GET',
             headers:{'Authorization':'Bearer ' +props.cookies.token}}).then((response) => {
                 return response.json()})
-                .then((data) => setData(data))
+                .then((data) => {
+                    setData(data);
+                })
                 .catch((e) => noData());
     }
 
@@ -58,6 +60,7 @@ function Workspace(props){
                 return response.json();
             }).then((data) => {
                 if(data.message === "Uploaded item to Azure and updated DB🤗"){
+                    console.log("ici")
                     setState("noItemSelected");
                     refreshItemsList();
                 }
@@ -97,6 +100,7 @@ function Workspace(props){
                 return response.json();
             }).then((data) => {
                 if(data.message === "Uploaded item to Azure and updated DB🤗"){
+                    console.log("ici")
                     setState("noItemSelected");
                     refreshItemsList();
                 }
@@ -131,14 +135,31 @@ function Workspace(props){
     }
 
     useEffect(() => {
-        setState("ItemSelected")
+        if(item !== null){
+            setState("ItemSelected")
+        }
     }, [item])
 
     useEffect(() => {
         if(data !== null && state !== "newItem"){
-            setState('noItemSelected');
+            console.log(state);
+            console.log("ici")
+            if(state !== "uploadingPois" && state !== "ItemSelected"){
+                console.log(state)
+                setState('noItemSelected');
+            }
+            else{
+                    let i = data.find(element => element._id === item._id);
+                    setItem(i)
+                setState("ItemSelected")
+
+            }
+            
         }
-        console.log("data changed ")
+        if(data === oldData){
+            refreshItemsList();
+        }
+        
     }, [data]);
 
 
@@ -173,7 +194,10 @@ function Workspace(props){
     }
 
     function handleClick(item){
+        console.log(state);
+        setState("noItemSelected");
         const newItem = item;
+        console.log(item);
         setItem(newItem);
     }
 
@@ -217,6 +241,8 @@ function Workspace(props){
     }
 
     function addPois(id){
+        setState("uploadingPois");
+        setOldData(data);
         var formdata = new FormData();
         formdata.append("avatar", nPois.avatar);
         formdata.append("name", nPois.name);
@@ -227,7 +253,6 @@ function Workspace(props){
         formdata.append("x", newPos.x);
         formdata.append("y", newPos.y);
         formdata.append("z", newPos.z);
-        console.log(nPois.x, nPois.y, nPois.z);
         var requestOptions = {
         method: 'POST',
         headers:{'Authorization':'Bearer ' + props.cookies.token},
@@ -238,16 +263,19 @@ function Workspace(props){
         fetch("https://lauriari-arvr.azurewebsites.net/aritem/pois/" + id, requestOptions)
         .then(response => response.json())
         .then(result => {
+            refreshItemsList();
             if(result.message === "Added a new point of interest!"){
                 setPois(false);
+                
             }
             else{
                 console.log("add a toaster : error pois")
             }
+            console.log(data);
         })
         .catch(error => console.log('error', error));
     }
-
+    console.log(state);
     if(props.logged === 'false'){
         return (
             <>
@@ -296,7 +324,7 @@ function Workspace(props){
                             <button class="btn btn-secondary" onClick={() => console.log("edit")}>Edit the item</button>
                         </div>
                     </div>
-                    <PoisList pois={item.pois}></PoisList>
+                    <PoisList itemId={item._id} pois={item.pois}></PoisList>
                 </div>       
             )
             
@@ -327,7 +355,7 @@ function Workspace(props){
                 
                     <div class="mb-3">
                         <label for="formFile" class="form-label">Choose a logo for the point of interest.</label>
-                        <input class="form-control" id="file-input" onChange={(e) => nPois.avatar = e.target.files[0]} placeholder="Choose a file" type="file" ></input>
+                        <input class="form-control" id="file-input" accept="image/png, image/gif, image/jpeg" onChange={(e) => nPois.avatar = e.target.files[0]} placeholder="Choose a file" type="file" ></input>
                     </div>
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Name</span>
@@ -446,7 +474,7 @@ function Workspace(props){
                                 </select>
                                 <div class="mb-3">
                                     <label for="formFile" class="form-label">Choose a logo for your item.</label>
-                                    <input class="form-control"  placeholder="Choose a file" accept="" type="file" onChange={(e) => nItem.logoImageReference = e.target.files[0]}></input>
+                                    <input class="form-control"  placeholder="Choose a file" accept="image/png, image/gif, image/jpeg" type="file" onChange={(e) => nItem.logoImageReference = e.target.files[0]}></input>
                                 </div>
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="basic-addon1">Title</span>
@@ -476,7 +504,7 @@ function Workspace(props){
                                 </div>
                                 <div class="mb-3">
                                     <label for="formFile" class="form-label">Choose the textures files.</label>
-                                    <input class="form-control" id="file-input" placeholder="Choose a file" type="file" multiple onChange={(e) => nItem.textureFiles = e.target.files}></input>
+                                    <input class="form-control" id="file-input" placeholder="Choose a file" type="file" accept="image/png, image/gif, image/jpeg" multiple onChange={(e) => nItem.textureFiles = e.target.files}></input>
                                 </div>
                                 <button type="submit" class="btn btn-primary" onClick={upLoadItem}>Upload</button>
                             </ul>
@@ -494,6 +522,42 @@ function Workspace(props){
                 <span class="visually-hidden">Loading...</span> 
             </div>
             </>
+        )
+    }
+    else if(state === "uploadingPois"){
+        return(
+            <div class="d-flex justify-content-start" style={{margin: "1% 0 5% 1%"}}>
+                    <ItemsList items={data} deleteItem={dItem} changeItem={handleClick} addItem={addItem}></ItemsList>
+                    <div class="card w-50" style={{margin:"0 1% 0 1%"}, {padding:"2%"}}>
+                        <div class="d-flex justify-content-start" style={{padding:"0 0 5% 0"}}>
+                                <img src={"https://lauriaristorage.blob.core.windows.net/" + item.logoImageReference} style={{width: "5%", margin: "0 2% 0 0"}}alt="" />
+                                <h2>{item.name}</h2>
+                        </div>
+                        <div className="d-flex flex-column align-items-center justify-content-around" style={{padding:"5%"}}>
+                            <div>
+                            <ItemDetail detail="description" id={item._id}data={item.description} editItem={editItem}></ItemDetail>
+                            <ItemDetail detail="latitude" id={item._id}data={item.latitude} editItem={editItem}></ItemDetail>
+                            <ItemDetail detail="longitude" id={item._id}data={item.longitude} editItem={editItem}></ItemDetail>
+                            <ItemDetail detail="category" id={item._id}data={item.category} editItem={editItem}></ItemDetail>
+                                <p>QR Code for your items</p>
+                                <div class="d-flex flex-column align-items-center">
+                                    <img src={item.QRCode} alt="" />
+                                    <a href={item.QRCode} download={item.name}><button class="btn btn-secondary btn-sm">Download me</button></a>
+                                </div>
+                            </div>
+                            <div class=" d-flex flex-column bd-highlight mb-3 align-items-center">
+                                <ItemViewer link={item.objectReference}  fac={facteur }click={itemOnClick}></ItemViewer>
+                            </div>
+                        </div>
+                        <div className="d-flex justify-content-start">
+                            <button class="btn btn-primary" style={{margin: "0 1% 0 0"}}onClick={() => setPois(true)}>Add a point of interest to your item</button>
+                            <button class="btn btn-secondary" onClick={() => console.log("edit")}>Edit the item</button>
+                        </div>
+                    </div>
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span> 
+                    </div>
+                </div>       
         )
     }
     else{

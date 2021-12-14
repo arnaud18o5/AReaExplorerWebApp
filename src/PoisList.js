@@ -1,4 +1,5 @@
 import React, { useEffect,useState} from "react";
+import PoisDetail from "./PoisDetail.js"
 
 export default function PoisList(props){
 
@@ -16,11 +17,10 @@ export default function PoisList(props){
                             </h2>
                             <div id={"collapse" + + props.pois.indexOf(d)} class="accordion-collapse collapse show" aria-labelledby={"heading" + props.pois.indexOf(d)} data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
-
                                     <p><strong>Description : </strong>{d.description}</p>
                                     <p><strong>Category : </strong>{d.category}</p>
                                     <p><strong>Location : </strong>{d.latitude} ; {d.longitude}</p>
-                                    <p><strong>Position : </strong>x: {d.mapCoordinates.x} ; y: {d.mapCoordinates.y} ; z: {d.mapCoordinates.z}</p>
+                                    <PoisDetail itemId= {props.itemId} pois={d.mapCoordinates} detail="coordinates"></PoisDetail>
                                 </div>
                             </div>  
                         </div>                  

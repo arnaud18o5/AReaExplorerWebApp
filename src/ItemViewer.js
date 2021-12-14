@@ -35,6 +35,7 @@ const camera = new THREE.PerspectiveCamera(
     1000
 )
 camera.position.z = 20
+camera.position.y = 20
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth *fac, window.innerHeight * fac)
 mountRef.current.appendChild( renderer.domElement );
@@ -86,8 +87,6 @@ function onMouseMove(event){
 }
   
 }
-const stats = Stats()
-document.body.appendChild(stats.dom)
 
 function animate() {
     requestAnimationFrame(animate)
@@ -96,7 +95,6 @@ function animate() {
 
     render()
 
-    stats.update()
 }
 
 function render() {
@@ -152,20 +150,12 @@ animate()
 //return () => mountRef.current.removeChild( renderer.domElement);
     }, [])
     
-    function changeFac(){
-      if(fac === 0.3){
-          setFac(1);
-      }
-      else{
-          setFac(0.3);
-      }
-  }
+ 
 
     return (
       <>
         <div ref={mountRef} style={{cursor: "none"}}id="3d">
         </div>
-        <button onClick={changeFac} class="btn btn-secondary">{fac === 1 ? "Leave Fullscreen" : "FullScreen"}</button>
       </>
     )
   
