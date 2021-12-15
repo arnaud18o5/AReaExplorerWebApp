@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/AReaExplorerWebApp/static/css/main.66ebd602.chunk.css",
+    "main.js": "/AReaExplorerWebApp/static/js/main.cafaeb75.chunk.js",
+    "main.js.map": "/AReaExplorerWebApp/static/js/main.cafaeb75.chunk.js.map",
+    "runtime-main.js": "/AReaExplorerWebApp/static/js/runtime-main.24063639.js",
+    "runtime-main.js.map": "/AReaExplorerWebApp/static/js/runtime-main.24063639.js.map",
+    "static/css/2.0a9ec390.chunk.css": "/AReaExplorerWebApp/static/css/2.0a9ec390.chunk.css",
+    "static/js/2.95754466.chunk.js": "/AReaExplorerWebApp/static/js/2.95754466.chunk.js",
+    "static/js/2.95754466.chunk.js.map": "/AReaExplorerWebApp/static/js/2.95754466.chunk.js.map",
+    "static/js/3.65de66d0.chunk.js": "/AReaExplorerWebApp/static/js/3.65de66d0.chunk.js",
+    "static/js/3.65de66d0.chunk.js.map": "/AReaExplorerWebApp/static/js/3.65de66d0.chunk.js.map",
+    "index.html": "/AReaExplorerWebApp/index.html",
+    "static/css/2.0a9ec390.chunk.css.map": "/AReaExplorerWebApp/static/css/2.0a9ec390.chunk.css.map",
+    "static/css/main.66ebd602.chunk.css.map": "/AReaExplorerWebApp/static/css/main.66ebd602.chunk.css.map",
+    "static/js/2.95754466.chunk.js.LICENSE.txt": "/AReaExplorerWebApp/static/js/2.95754466.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.24063639.js",
+    "static/css/2.0a9ec390.chunk.css",
+    "static/js/2.95754466.chunk.js",
+    "static/css/main.66ebd602.chunk.css",
+    "static/js/main.cafaeb75.chunk.js"
+  ]
+}
